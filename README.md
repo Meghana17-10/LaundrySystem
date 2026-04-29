@@ -2,6 +2,10 @@
 
 A lightweight dry-cleaning order management system with a Node.js/Express backend (SQLite), JWT authentication, and a single-page HTML frontend.
 
+🚀 **Live Demo**: [https://laundrysystem-xelh.onrender.com](https://laundrysystem-xelh.onrender.com)
+
+> Deployed on Render free tier — may have ~30s cold start delay on first request after inactivity.
+
 ---
 
 ## Setup Instructions
@@ -115,6 +119,6 @@ All `/api/orders` and `/api/dashboard` routes require `Authorization: Bearer <to
 - Add pagination + sorting to orders list
 - Move JWT secret to `.env` with `dotenv`
 - Add order deletion / soft-delete
-- Deploy to Railway or Render with a persistent volume for SQLite
+- Add persistent volume for SQLite (currently resets on redeploy)
 - Add print/invoice view per order
 - Replace SQLite with PostgreSQL for multi-instance deployments
