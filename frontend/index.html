@@ -239,8 +239,8 @@
   <div class="page active" id="page-dashboard">
     <div class="page-title">Dashboard</div>
     <div class="stat-grid">
-      <div class="stat-card" onclick="showPage('orders')"><div class="label">Total Orders</div><div class="value" id="d-total">—</div></div>
-      <div class="stat-card" onclick="showPage('orders')"><div class="label">Total Revenue</div><div class="value green" id="d-revenue">—</div></div>
+      <div class="stat-card" onclick="showAllOrders()"><div class="label">Total Orders</div><div class="value" id="d-total">—</div></div>
+      <div class="stat-card" onclick="showAllOrders()"><div class="label">Total Revenue</div><div class="value green" id="d-revenue">—</div></div>
       <div class="stat-card" onclick="showOrdersByStatus('RECEIVED')"><div class="label">Received</div><div class="value" id="d-received">—</div></div>
       <div class="stat-card" onclick="showOrdersByStatus('PROCESSING')"><div class="label">Processing</div><div class="value orange" id="d-processing">—</div></div>
       <div class="stat-card" onclick="showOrdersByStatus('READY')"><div class="label">Ready</div><div class="value green" id="d-ready">—</div></div>
@@ -392,9 +392,20 @@ async function loadDashboard() {
 }
 
 function showOrdersByStatus(status) {
-  showPage('orders');
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-garment').value = '';
   document.getElementById('f-status').value = status;
+  showPage('orders');
   loadOrders();
+}
+
+function showAllOrders() {
+  document.getElementById('f-status').value = '';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-garment').value = '';
+  showPage('orders');
 }
 
 // ── Filter toggle (mobile) ───────────────────────────
