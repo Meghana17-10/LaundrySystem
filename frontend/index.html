@@ -153,6 +153,7 @@
     .order-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f4f8; padding-top: 10px; }
     .order-card-footer .total { font-weight: 700; color: #2b6cb0; font-size: 1rem; }
 
+    .order-cards { display: none; }
     /* ── Mobile filter toggle ── */
     .filter-toggle { display: none; }
     @media (max-width: 600px) {
@@ -177,10 +178,9 @@
       .garment-row select { flex: 1 1 100%; }
       .garment-row .qty-control { flex: 1; }
       .table-wrap table { display: none; }
-      .order-cards { display: block; }
+      .order-cards { display: block !important; }
       #bill-preview { overflow-x: auto; }
     }
-    .order-cards { display: none; }
   </style>
 </head>
 <body>
