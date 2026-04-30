@@ -371,12 +371,13 @@ function showPage(name) {
     b.classList.toggle('active', ['dashboard','orders','create'][i] === name);
   });
   document.querySelectorAll('.bottom-nav button').forEach((b, i) => {
-    b.classList.toggle('active', ['dashboard','orders','create'][i] === name);
+    b.classList.toggle('active', ['dashboard','orders','create',''][i] === name);
   });
   document.getElementById('page-' + name).classList.add('active');
   if (name === 'dashboard') loadDashboard();
-  if (name === 'orders')    loadOrders();
   if (name === 'create')    initCreateForm();
+  // orders page load is handled by caller to allow pre-filtering
+  if (name === 'orders')    loadOrders();
 }
 
 // ── Dashboard ─────────────────────────────────────────
@@ -392,19 +393,26 @@ async function loadDashboard() {
 }
 
 function showOrdersByStatus(status) {
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-phone').value = '';
+  document.getElementById('f-name').value    = '';
+  document.getElementById('f-phone').value   = '';
   document.getElementById('f-garment').value = '';
-  document.getElementById('f-status').value = status;
+  document.getElementById('f-status').value  = status;
+  // expand filters on mobile so user sees the active filter
+  const toolbar = document.getElementById('orders-toolbar');
+  toolbar.classList.remove('collapsed');
+  document.getElementById('filter-arrow').textContent = '▲';
   showPage('orders');
-  loadOrders();
 }
 
 function showAllOrders() {
-  document.getElementById('f-status').value = '';
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-phone').value = '';
+  document.getElementById('f-name').value    = '';
+  document.getElementById('f-phone').value   = '';
   document.getElementById('f-garment').value = '';
+  document.getElementById('f-status').value  = '';
+  // collapse filters on mobile for clean view
+  const toolbar = document.getElementById('orders-toolbar');
+  toolbar.classList.add('collapsed');
+  document.getElementById('filter-arrow').textContent = '▼';
   showPage('orders');
 }
 
