@@ -21,6 +21,12 @@ router.post('/', (req, res) => {
   if (!customer_name || !phone || !Array.isArray(garments) || garments.length === 0) {
     return res.status(400).json({ error: 'customer_name, phone, and garments[] are required.' });
   }
+  if (!/^[a-zA-Z\s]+$/.test(customer_name)) {
+    return res.status(400).json({ error: 'Name must contain letters only.' });
+  }
+  if (!/^[0-9]{10}$/.test(phone)) {
+    return res.status(400).json({ error: 'Phone must be exactly 10 digits.' });
+  }
 
   const enriched = [];
   for (const g of garments) {
