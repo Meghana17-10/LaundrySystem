@@ -69,7 +69,14 @@ Open **http://localhost:3000** in your browser.
 | Simple frontend (single-page HTML/CSS/JS) | ✅ |
 | SQLite persistent storage | ✅ |
 | Configurable garment price list | ✅ |
-| Mobile responsive UI (cards view on small screens) | ✅ |
+| Mobile responsive UI with bottom nav | ✅ |
+| Order cards view on mobile | ✅ |
+| Invoice preview with print support | ✅ |
+| Dashboard cards clickable → filtered orders | ✅ |
+| Duplicate customer warning before placing order | ✅ |
+| No duplicate garments in order form | ✅ |
+| Delivery date calculated by total quantity | ✅ |
+| Name & phone validation (letters only, 10 digits) | ✅ |
 | Deployed on Render (free tier) | ✅ |
 
 ---
@@ -125,6 +132,9 @@ All `/api/orders` and `/api/dashboard` routes require `Authorization: Bearer <to
 - Frontend modal initially lacked the current status pre-selection — added `currentStatus` parameter to `openModal()`
 - AI used `app.use(express.static(...))` after route definitions, causing the fallback `*` route to never serve the HTML — reordered middleware
 - AI's initial mobile layout just scaled down the desktop table — replaced with a card-based layout for orders on mobile for better usability
+- AI generated a basic bill preview inside the form — redesigned as a full invoice card side-by-side with print support
+- AI did not handle duplicate garment selection — added logic to prevent same garment appearing twice in an order
+- AI used a fixed delivery date offset — replaced with quantity-based calculation (2 days + 1 day per 5 items)
 
 ---
 
@@ -141,5 +151,4 @@ All `/api/orders` and `/api/dashboard` routes require `Authorization: Bearer <to
 - Move JWT secret to `.env` with `dotenv`
 - Add order deletion / soft-delete
 - Add persistent volume for SQLite (currently resets on redeploy)
-- Add print/invoice view per order
 - Replace SQLite with PostgreSQL for multi-instance deployments
