@@ -14,7 +14,7 @@
     }
     .auth-card {
       background: #fff; border-radius: 12px; padding: 40px 36px; width: 360px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.10);
+      box-shadow: 0 4px 24px rgba(0,0,0,.10); max-width: 100%;
     }
     .auth-card h1 { font-size: 1.6rem; margin-bottom: 6px; color: #2b6cb0; }
     .auth-card p  { font-size: .85rem; color: #718096; margin-bottom: 24px; }
@@ -62,8 +62,25 @@
     nav .user-info { font-size: .82rem; opacity: .85; display: flex; align-items: center; gap: 10px; }
     nav .user-info button { background: rgba(255,255,255,.2); border: none; color: #fff; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: .8rem; }
 
+    /* ── Bottom nav (mobile) ── */
+    .bottom-nav {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: #2b6cb0; height: 56px; z-index: 50;
+      justify-content: space-around; align-items: center;
+    }
+    .bottom-nav button {
+      background: transparent; border: none; color: rgba(255,255,255,.75);
+      font-size: .75rem; font-weight: 600; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px;
+    }
+    .bottom-nav button.active { color: #fff; }
+    .bottom-nav button span.icon { font-size: 1.2rem; }
+
     .page { display: none; padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
     .page.active { display: block; }
+
+    /* ── Responsive table ── */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; }
 
     /* ── Dashboard ── */
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
@@ -112,12 +129,30 @@
       align-items: center; justify-content: center; z-index: 100;
     }
     .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 12px; padding: 28px; width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,.18); }
+    .modal { background: #fff; border-radius: 12px; padding: 28px; width: 360px; max-width: calc(100vw - 32px); box-shadow: 0 8px 32px rgba(0,0,0,.18); }
     .modal h3 { margin-bottom: 16px; }
     .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
 
     .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: #2d3748; }
     .empty { text-align: center; padding: 40px; color: #a0aec0; font-size: .95rem; }
+
+    @media (max-width: 600px) {
+      #auth-screen { padding: 16px; }
+      .auth-card { padding: 28px 20px; width: 100%; }
+      nav .nav-links, nav .user-info span { display: none; }
+      nav .user-info button { display: none; }
+      .bottom-nav { display: flex; }
+      .page { padding: 16px 12px 72px; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat-card { padding: 14px 16px; }
+      .stat-card .value { font-size: 1.5rem; }
+      .toolbar { gap: 8px; }
+      .toolbar input, .toolbar select { min-width: 100%; flex: unset; }
+      .form-card { padding: 18px 14px; }
+      .garment-row { flex-wrap: wrap; }
+      .garment-row select { flex: 1 1 100%; }
+      .garment-row input  { flex: 1; }
+    }
   </style>
 </head>
 <body>
@@ -164,6 +199,14 @@
     </div>
   </nav>
 
+  <!-- Mobile bottom nav -->
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="active" onclick="showPage('dashboard')"><span class="icon">📊</span>Dashboard</button>
+    <button onclick="showPage('orders')"><span class="icon">📋</span>Orders</button>
+    <button onclick="showPage('create')"><span class="icon">➕</span>New Order</button>
+    <button onclick="logout()"><span class="icon">🚪</span>Logout</button>
+  </div>
+
   <!-- Dashboard -->
   <div class="page active" id="page-dashboard">
     <div class="page-title">Dashboard</div>
@@ -190,7 +233,7 @@
       </select>
       <button class="btn btn-primary btn-sm" onclick="loadOrders()">🔍 Search</button>
     </div>
-    <div id="orders-table-wrap"></div>
+    <div id="orders-table-wrap" class="table-wrap"></div>
   </div>
 
   <!-- Create Order -->
@@ -294,6 +337,9 @@ function logout() {
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-links button').forEach((b, i) => {
+    b.classList.toggle('active', ['dashboard','orders','create'][i] === name);
+  });
+  document.querySelectorAll('.bottom-nav button').forEach((b, i) => {
     b.classList.toggle('active', ['dashboard','orders','create'][i] === name);
   });
   document.getElementById('page-' + name).classList.add('active');
