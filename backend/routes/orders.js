@@ -1,7 +1,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db');
-const { GARMENT_PRICES, ORDER_STATUSES, DELIVERY_DAYS } = require('../config');
+const { GARMENT_PRICES, ORDER_STATUSES, calcDeliveryDays } = require('../config');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -37,10 +37,11 @@ router.post('/', (req, res) => {
   }
 
   const total_amount = enriched.reduce((sum, g) => sum + g.subtotal, 0);
+  const totalQty = enriched.reduce((sum, g) => sum + g.quantity, 0);
   const order_id = 'ORD-' + uuidv4().slice(0, 8).toUpperCase();
 
   const estimated_delivery = new Date();
-  estimated_delivery.setDate(estimated_delivery.getDate() + DELIVERY_DAYS);
+  estimated_delivery.setDate(estimated_delivery.getDate() + calcDeliveryDays(totalQty));
 
   db.prepare(`
     INSERT INTO orders (order_id, customer_name, phone, garments, total_amount, estimated_delivery)

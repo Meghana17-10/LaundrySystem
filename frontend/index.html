@@ -117,8 +117,11 @@
     .form-card { background: #fff; border-radius: 10px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,.07); max-width: 640px; }
     .garment-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
     .garment-row select { flex: 2; }
-    .garment-row input  { flex: 1; }
-    .garment-row button { flex-shrink: 0; }
+    .garment-row .qty-control { display: flex; align-items: center; gap: 6px; flex: 1; }
+    .garment-row .qty-control button { width: 32px; height: 32px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: #f7fafc; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .garment-row .qty-control button:hover { background: #e2e8f0; }
+    .garment-row .qty-val { min-width: 28px; text-align: center; font-weight: 700; font-size: .95rem; }
+    .garment-row .remove-btn { flex-shrink: 0; }
     #bill-preview { margin-top: 18px; background: #f7fafc; border-radius: 8px; padding: 14px 16px; font-size: .88rem; }
     #bill-preview table { box-shadow: none; border-radius: 0; }
     #bill-preview th, #bill-preview td { padding: 6px 10px; }
@@ -172,7 +175,7 @@
       .form-card { padding: 18px 14px; max-width: 100%; }
       .garment-row { flex-wrap: wrap; }
       .garment-row select { flex: 1 1 100%; }
-      .garment-row input  { flex: 1; }
+      .garment-row .qty-control { flex: 1; }
       .table-wrap table { display: none; }
       .order-cards { display: block; }
       #bill-preview { overflow-x: auto; }
@@ -486,21 +489,60 @@ function initCreateForm() {
 }
 
 function addGarmentRow() {
+  const selectedGarments = getSelectedGarments();
+  const availableGarments = Object.keys(prices).filter(g => !selectedGarments.includes(g));
+  
+  if (availableGarments.length === 0) {
+    alert('All garment types have been added.');
+    return;
+  }
+
   const row = document.createElement('div');
   row.className = 'garment-row';
   row.innerHTML = `
-    <select onchange="updatePreviewIfVisible()">
-      ${Object.keys(prices).map(g => `<option>${g}</option>`).join('')}
+    <select onchange="updateGarmentDropdowns(); updatePreviewIfVisible();">
+      ${availableGarments.map(g => `<option>${g}</option>`).join('')}
     </select>
-    <input type="number" min="1" value="1" placeholder="Qty" oninput="updatePreviewIfVisible()" />
-    <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); updatePreviewIfVisible()">✕</button>`;
+    <div class="qty-control">
+      <button onclick="changeQty(this, -1)">−</button>
+      <span class="qty-val">1</span>
+      <button onclick="changeQty(this, 1)">+</button>
+    </div>
+    <button class="btn btn-danger btn-sm remove-btn" onclick="this.parentElement.remove(); updateGarmentDropdowns(); updatePreviewIfVisible();">✕</button>`;
   document.getElementById('garment-rows').appendChild(row);
+  updateGarmentDropdowns();
+}
+
+function getSelectedGarments() {
+  return [...document.querySelectorAll('.garment-row select')].map(s => s.value);
+}
+
+function updateGarmentDropdowns() {
+  const allRows = document.querySelectorAll('.garment-row');
+  allRows.forEach(row => {
+    const select = row.querySelector('select');
+    const currentVal = select.value;
+    const selectedGarments = getSelectedGarments().filter(g => g !== currentVal);
+    const availableGarments = Object.keys(prices).filter(g => !selectedGarments.includes(g));
+    
+    select.innerHTML = availableGarments.map(g => 
+      `<option ${g === currentVal ? 'selected' : ''}>${g}</option>`
+    ).join('');
+  });
+}
+
+function changeQty(btn, delta) {
+  const qtySpan = btn.parentElement.querySelector('.qty-val');
+  let qty = parseInt(qtySpan.textContent) + delta;
+  if (qty < 1) qty = 1;
+  qtySpan.textContent = qty;
+  updatePreviewIfVisible();
 }
 
 function getGarmentRows() {
   return [...document.querySelectorAll('.garment-row')].map(row => ({
     name: row.querySelector('select').value,
-    quantity: parseInt(row.querySelector('input').value) || 1
+    quantity: parseInt(row.querySelector('.qty-val').textContent) || 1
   }));
 }
 
