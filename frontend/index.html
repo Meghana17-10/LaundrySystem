@@ -149,6 +149,8 @@
     .order-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f4f8; padding-top: 10px; }
     .order-card-footer .total { font-weight: 700; color: #2b6cb0; font-size: 1rem; }
 
+    /* ── Mobile filter toggle ── */
+    .filter-toggle { display: none; }
     @media (max-width: 600px) {
       #auth-screen { padding: 16px; }
       .auth-card { padding: 28px 20px; width: 100%; }
@@ -164,6 +166,8 @@
       .stat-card .value { font-size: 1.5rem; }
       .toolbar { gap: 8px; }
       .toolbar input, .toolbar select { min-width: 100%; flex: unset; }
+      .toolbar.collapsed .toolbar-filters { display: none; }
+      .filter-toggle { display: flex; width: 100%; justify-content: space-between; align-items: center; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-size: .9rem; font-weight: 600; color: #4a5568; cursor: pointer; margin-bottom: 4px; }
       .form-card { padding: 18px 14px; max-width: 100%; }
       .garment-row { flex-wrap: wrap; }
       .garment-row select { flex: 1 1 100%; }
@@ -243,15 +247,17 @@
   <!-- Orders List -->
   <div class="page" id="page-orders">
     <div class="page-title">All Orders</div>
-    <div class="toolbar">
-      <input id="f-name"    type="text"   placeholder="Search by name…" oninput="loadOrders()" />
-      <input id="f-phone"   type="text"   placeholder="Search by phone…" oninput="loadOrders()" />
-      <input id="f-garment" type="text"   placeholder="Search by garment…" oninput="loadOrders()" />
-      <select id="f-status" onchange="loadOrders()">
-        <option value="">All Statuses</option>
-        <option>RECEIVED</option><option>PROCESSING</option><option>READY</option><option>DELIVERED</option>
-      </select>
-      <button class="btn btn-primary btn-sm" onclick="loadOrders()">🔍 Search</button>
+    <div class="toolbar collapsed" id="orders-toolbar">
+      <button class="filter-toggle" onclick="toggleFilters()">🔍 Search & Filter <span id="filter-arrow">▼</span></button>
+      <div class="toolbar-filters">
+        <input id="f-name"    type="text" placeholder="Search by name…"    oninput="loadOrders()" />
+        <input id="f-phone"   type="text" placeholder="Search by phone…"   oninput="loadOrders()" />
+        <input id="f-garment" type="text" placeholder="Search by garment…" oninput="loadOrders()" />
+        <select id="f-status" onchange="loadOrders()">
+          <option value="">All Statuses</option>
+          <option>RECEIVED</option><option>PROCESSING</option><option>READY</option><option>DELIVERED</option>
+        </select>
+      </div>
     </div>
     <div id="orders-table-wrap" class="table-wrap"></div>
     <div id="orders-card-wrap" class="order-cards"></div>
@@ -379,6 +385,14 @@ async function loadDashboard() {
   document.getElementById('d-processing').textContent = d.orders_per_status.PROCESSING;
   document.getElementById('d-ready').textContent      = d.orders_per_status.READY;
   document.getElementById('d-delivered').textContent  = d.orders_per_status.DELIVERED;
+}
+
+// ── Filter toggle (mobile) ───────────────────────────
+function toggleFilters() {
+  const toolbar = document.getElementById('orders-toolbar');
+  const arrow = document.getElementById('filter-arrow');
+  toolbar.classList.toggle('collapsed');
+  arrow.textContent = toolbar.classList.contains('collapsed') ? '▼' : '▲';
 }
 
 // ── Orders List ───────────────────────────────────────
