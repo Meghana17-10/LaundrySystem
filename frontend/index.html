@@ -114,7 +114,8 @@
     .badge-DELIVERED  { background: #e9d8fd; color: #44337a; }
 
     /* ── Create Order ── */
-    .form-card { background: #fff; border-radius: 10px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,.07); max-width: 640px; }
+    .create-layout { display: flex; gap: 24px; align-items: flex-start; }
+    .form-card { background: #fff; border-radius: 10px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,.07); flex: 1; max-width: 640px; }
     .garment-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
     .garment-row select { flex: 2; }
     .garment-row .qty-control { display: flex; align-items: center; gap: 6px; flex: 1; }
@@ -126,6 +127,32 @@
     #bill-preview table { box-shadow: none; border-radius: 0; }
     #bill-preview th, #bill-preview td { padding: 6px 10px; }
     .total-row td { font-weight: 700; color: #2b6cb0; border-top: 2px solid #e2e8f0 !important; }
+
+    /* ── Invoice card ── */
+    .invoice-card {
+      display: none; background: #fff; border-radius: 10px; padding: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07); flex: 1; max-width: 420px; position: sticky; top: 20px;
+    }
+    .invoice-card.visible { display: block; }
+    .invoice-header { border-bottom: 2px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 16px; }
+    .invoice-header h2 { font-size: 1.1rem; color: #2b6cb0; margin-bottom: 4px; }
+    .invoice-header p { font-size: .8rem; color: #718096; }
+    .invoice-customer { margin-bottom: 16px; font-size: .88rem; }
+    .invoice-customer .row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f0f4f8; }
+    .invoice-customer .row span:first-child { color: #718096; }
+    .invoice-customer .row span:last-child { font-weight: 600; }
+    .invoice-table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-bottom: 16px; }
+    .invoice-table th { background: #ebf4ff; color: #2b6cb0; padding: 8px 10px; text-align: left; font-size: .75rem; text-transform: uppercase; }
+    .invoice-table td { padding: 8px 10px; border-bottom: 1px solid #f0f4f8; }
+    .invoice-total { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; color: #2b6cb0; border-top: 2px solid #e2e8f0; padding-top: 12px; }
+    .invoice-footer { margin-top: 16px; font-size: .75rem; color: #a0aec0; text-align: center; }
+    .invoice-actions { display: flex; gap: 8px; margin-top: 16px; }
+    @media print {
+      body * { visibility: hidden; }
+      .invoice-card, .invoice-card * { visibility: visible; }
+      .invoice-card { position: fixed; top: 0; left: 0; width: 100%; box-shadow: none; }
+      .invoice-actions { display: none; }
+    }
 
     /* ── Modal ── */
     .modal-overlay {
@@ -174,6 +201,8 @@
       .toolbar.collapsed .toolbar-filters { display: none; }
       .filter-toggle { display: flex; width: 100%; justify-content: space-between; align-items: center; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-size: .9rem; font-weight: 600; color: #4a5568; cursor: pointer; margin-bottom: 4px; }
       .form-card { padding: 18px 14px; max-width: 100%; }
+      .create-layout { flex-direction: column; }
+      .invoice-card { max-width: 100%; position: static; }
       .garment-row { flex-wrap: wrap; }
       .garment-row select { flex: 1 1 100%; }
       .garment-row .qty-control { flex: 1; }
@@ -218,7 +247,7 @@
     <span class="brand">🧺 LaundryPro</span>
     <div class="nav-links">
       <button class="active" onclick="showPage('dashboard')">Dashboard</button>
-      <button onclick="showPage('orders')">Orders</button>
+      <button onclick="showAllOrders()">Orders</button>
       <button onclick="showPage('create')">+ New Order</button>
     </div>
     <div class="user-info">
@@ -230,7 +259,7 @@
   <!-- Mobile bottom nav -->
   <div class="bottom-nav" id="bottom-nav">
     <button class="active" onclick="showPage('dashboard')"><span class="icon">📊</span>Dashboard</button>
-    <button onclick="showPage('orders')"><span class="icon">📋</span>Orders</button>
+    <button onclick="showAllOrders()"><span class="icon">📋</span>Orders</button>
     <button onclick="showPage('create')"><span class="icon">➕</span>New Order</button>
     <button onclick="logout()"><span class="icon">🚪</span>Logout</button>
   </div>
@@ -270,21 +299,44 @@
   <!-- Create Order -->
   <div class="page" id="page-create">
     <div class="page-title">New Order</div>
-    <div class="form-card">
-      <label>Customer Name</label>
-      <input id="c-name" type="text" placeholder="Full name" />
-      <label>Phone Number</label>
-      <input id="c-phone" type="tel" placeholder="10-digit number" />
+    <div class="create-layout">
+      <div class="form-card">
+        <label>Customer Name</label>
+        <input id="c-name" type="text" placeholder="Full name" />
+        <label>Phone Number</label>
+        <input id="c-phone" type="tel" placeholder="10-digit number" />
 
-      <label style="margin-top:18px">Garments</label>
-      <div id="garment-rows"></div>
-      <button class="btn btn-sm" style="background:#e2e8f0;color:#4a5568;margin-top:6px" onclick="addGarmentRow()">+ Add Garment</button>
+        <label style="margin-top:18px">Garments</label>
+        <div id="garment-rows"></div>
+        <button class="btn btn-sm" style="background:#e2e8f0;color:#4a5568;margin-top:6px" onclick="addGarmentRow()">+ Add Garment</button>
 
-      <div id="bill-preview" style="display:none"></div>
-      <div class="error-msg" id="create-error"></div>
-      <div style="display:flex;gap:10px;margin-top:18px">
-        <button class="btn btn-primary" onclick="previewBill()">Preview Bill</button>
-        <button class="btn btn-success" onclick="submitOrder()">✓ Place Order</button>
+        <div class="error-msg" id="create-error"></div>
+        <div style="display:flex;gap:10px;margin-top:18px">
+          <button class="btn btn-primary" onclick="previewBill()">Preview Bill</button>
+          <button class="btn btn-success" onclick="submitOrder()">✓ Place Order</button>
+        </div>
+      </div>
+
+      <div class="invoice-card" id="invoice-card">
+        <div class="invoice-header">
+          <h2>🧳 LaundryPro Invoice</h2>
+          <p id="inv-date"></p>
+        </div>
+        <div class="invoice-customer">
+          <div class="row"><span>Customer</span><span id="inv-name">—</span></div>
+          <div class="row"><span>Phone</span><span id="inv-phone">—</span></div>
+          <div class="row"><span>Est. Delivery</span><span id="inv-delivery">—</span></div>
+        </div>
+        <table class="invoice-table">
+          <thead><tr><th>Garment</th><th>Qty</th><th>Rate</th><th>Subtotal</th></tr></thead>
+          <tbody id="inv-items"></tbody>
+        </table>
+        <div class="invoice-total"><span>Total Amount</span><span id="inv-total">—</span></div>
+        <div class="invoice-footer">Thank you for choosing LaundryPro!</div>
+        <div class="invoice-actions">
+          <button class="btn btn-primary btn-sm" onclick="window.print()">🖨 Print</button>
+          <button class="btn btn-sm" style="background:#e2e8f0;color:#4a5568" onclick="closeInvoice()">Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -500,7 +552,7 @@ function initCreateForm() {
   document.getElementById('c-name').value  = '';
   document.getElementById('c-phone').value = '';
   document.getElementById('garment-rows').innerHTML = '';
-  document.getElementById('bill-preview').style.display = 'none';
+  document.getElementById('invoice-card').classList.remove('visible');
   document.getElementById('create-error').textContent = '';
   addGarmentRow();
 }
@@ -564,25 +616,40 @@ function getGarmentRows() {
 }
 
 function updatePreviewIfVisible() {
-  if (document.getElementById('bill-preview').style.display !== 'none') previewBill();
+  const inv = document.getElementById('invoice-card');
+  if (inv.classList.contains('visible')) previewBill();
 }
 
 function previewBill() {
   const garments = getGarmentRows();
   if (!garments.length) return;
-  let rows = '', total = 0;
-  garments.forEach(g => {
+
+  const name  = document.getElementById('c-name').value.trim() || '—';
+  const phone = document.getElementById('c-phone').value.trim() || '—';
+  const totalQty = garments.reduce((s, g) => s + g.quantity, 0);
+  const deliveryDays = 2 + Math.ceil(totalQty / 5);
+  const delivery = new Date();
+  delivery.setDate(delivery.getDate() + deliveryDays);
+
+  let total = 0;
+  const rows = garments.map(g => {
     const sub = (prices[g.name] || 0) * g.quantity;
     total += sub;
-    rows += `<tr><td>${g.name}</td><td>${g.quantity}</td><td>₹${prices[g.name]}</td><td>₹${sub}</td></tr>`;
-  });
-  const preview = document.getElementById('bill-preview');
-  preview.style.display = 'block';
-  preview.innerHTML = `
-    <table>
-      <thead><tr><th>Garment</th><th>Qty</th><th>Rate</th><th>Subtotal</th></tr></thead>
-      <tbody>${rows}<tr class="total-row"><td colspan="3">Total</td><td>₹${total}</td></tr></tbody>
-    </table>`;
+    return `<tr><td>${g.name}</td><td>${g.quantity}</td><td>₹${prices[g.name]}</td><td>₹${sub}</td></tr>`;
+  }).join('');
+
+  document.getElementById('inv-date').textContent     = 'Date: ' + new Date().toLocaleDateString('en-IN');
+  document.getElementById('inv-name').textContent     = name;
+  document.getElementById('inv-phone').textContent    = phone;
+  document.getElementById('inv-delivery').textContent = delivery.toLocaleDateString('en-IN');
+  document.getElementById('inv-items').innerHTML      = rows;
+  document.getElementById('inv-total').textContent    = '₹' + total.toLocaleString('en-IN');
+
+  document.getElementById('invoice-card').classList.add('visible');
+}
+
+function closeInvoice() {
+  document.getElementById('invoice-card').classList.remove('visible');
 }
 
 async function submitOrder() {
