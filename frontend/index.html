@@ -376,8 +376,6 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.add('active');
   if (name === 'dashboard') loadDashboard();
   if (name === 'create')    initCreateForm();
-  // orders page load is handled by caller to allow pre-filtering
-  if (name === 'orders')    loadOrders();
 }
 
 // ── Dashboard ─────────────────────────────────────────
@@ -397,11 +395,11 @@ function showOrdersByStatus(status) {
   document.getElementById('f-phone').value   = '';
   document.getElementById('f-garment').value = '';
   document.getElementById('f-status').value  = status;
-  // expand filters on mobile so user sees the active filter
   const toolbar = document.getElementById('orders-toolbar');
   toolbar.classList.remove('collapsed');
   document.getElementById('filter-arrow').textContent = '▲';
   showPage('orders');
+  loadOrders();
 }
 
 function showAllOrders() {
@@ -409,11 +407,11 @@ function showAllOrders() {
   document.getElementById('f-phone').value   = '';
   document.getElementById('f-garment').value = '';
   document.getElementById('f-status').value  = '';
-  // collapse filters on mobile for clean view
   const toolbar = document.getElementById('orders-toolbar');
   toolbar.classList.add('collapsed');
   document.getElementById('filter-arrow').textContent = '▼';
   showPage('orders');
+  loadOrders();
 }
 
 // ── Filter toggle (mobile) ───────────────────────────
@@ -612,6 +610,7 @@ async function submitOrder() {
 
   alert(`✅ Order placed!\nOrder ID: ${res.order_id}\nTotal: ₹${res.total_amount}\nEst. Delivery: ${res.estimated_delivery}`);
   showPage('orders');
+  loadOrders();
 }
 
 // ── Status Modal ──────────────────────────────────────
