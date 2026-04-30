@@ -574,12 +574,19 @@ async function submitOrder() {
   const garments      = getGarmentRows();
   const errEl         = document.getElementById('create-error');
 
-  if (!customer_name)                      { errEl.textContent = 'Customer name is required.'; return; }
+  if (!customer_name)                       { errEl.textContent = 'Customer name is required.'; return; }
   if (!/^[a-zA-Z\s]+$/.test(customer_name)) { errEl.textContent = 'Name must contain letters only.'; return; }
   if (!phone)                               { errEl.textContent = 'Phone number is required.'; return; }
   if (!/^[0-9]{10}$/.test(phone))           { errEl.textContent = 'Phone must be exactly 10 digits.'; return; }
   if (!garments.length)                     { errEl.textContent = 'Add at least one garment.'; return; }
   errEl.textContent = '';
+
+  // Check for existing customer (case-insensitive)
+  const existing = await apiFetch(`/api/orders?name=${encodeURIComponent(customer_name)}&phone=${encodeURIComponent(phone)}`);
+  if (Array.isArray(existing) && existing.length > 0) {
+    const proceed = confirm(`⚠️ A customer "${existing[0].customer_name}" with this phone already has ${existing.length} order(s).\nDo you want to place a new order anyway?`);
+    if (!proceed) return;
+  }
 
   const res = await apiFetch('/api/orders', 'POST', { customer_name, phone, garments });
   if (res.error) { errEl.textContent = res.error; return; }
