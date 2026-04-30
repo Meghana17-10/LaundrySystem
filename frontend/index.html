@@ -86,8 +86,9 @@
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
     .stat-card {
       background: #fff; border-radius: 10px; padding: 20px 22px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      box-shadow: 0 2px 8px rgba(0,0,0,.07); cursor: pointer; transition: transform .15s, box-shadow .15s;
     }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
     .stat-card .label { font-size: .78rem; color: #718096; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
     .stat-card .value { font-size: 2rem; font-weight: 700; margin-top: 6px; color: #2b6cb0; }
     .stat-card .value.green  { color: #38a169; }
@@ -235,12 +236,12 @@
   <div class="page active" id="page-dashboard">
     <div class="page-title">Dashboard</div>
     <div class="stat-grid">
-      <div class="stat-card"><div class="label">Total Orders</div><div class="value" id="d-total">—</div></div>
-      <div class="stat-card"><div class="label">Total Revenue</div><div class="value green" id="d-revenue">—</div></div>
-      <div class="stat-card"><div class="label">Received</div><div class="value" id="d-received">—</div></div>
-      <div class="stat-card"><div class="label">Processing</div><div class="value orange" id="d-processing">—</div></div>
-      <div class="stat-card"><div class="label">Ready</div><div class="value green" id="d-ready">—</div></div>
-      <div class="stat-card"><div class="label">Delivered</div><div class="value purple" id="d-delivered">—</div></div>
+      <div class="stat-card" onclick="showPage('orders')"><div class="label">Total Orders</div><div class="value" id="d-total">—</div></div>
+      <div class="stat-card" onclick="showPage('orders')"><div class="label">Total Revenue</div><div class="value green" id="d-revenue">—</div></div>
+      <div class="stat-card" onclick="showOrdersByStatus('RECEIVED')"><div class="label">Received</div><div class="value" id="d-received">—</div></div>
+      <div class="stat-card" onclick="showOrdersByStatus('PROCESSING')"><div class="label">Processing</div><div class="value orange" id="d-processing">—</div></div>
+      <div class="stat-card" onclick="showOrdersByStatus('READY')"><div class="label">Ready</div><div class="value green" id="d-ready">—</div></div>
+      <div class="stat-card" onclick="showOrdersByStatus('DELIVERED')"><div class="label">Delivered</div><div class="value purple" id="d-delivered">—</div></div>
     </div>
   </div>
 
@@ -385,6 +386,12 @@ async function loadDashboard() {
   document.getElementById('d-processing').textContent = d.orders_per_status.PROCESSING;
   document.getElementById('d-ready').textContent      = d.orders_per_status.READY;
   document.getElementById('d-delivered').textContent  = d.orders_per_status.DELIVERED;
+}
+
+function showOrdersByStatus(status) {
+  showPage('orders');
+  document.getElementById('f-status').value = status;
+  loadOrders();
 }
 
 // ── Filter toggle (mobile) ───────────────────────────
