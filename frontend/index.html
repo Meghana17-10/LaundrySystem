@@ -411,6 +411,12 @@ async function loadOrders() {
   const wrap = document.getElementById('orders-table-wrap');
   const cardWrap = document.getElementById('orders-card-wrap');
 
+  if (!Array.isArray(orders)) {
+    wrap.innerHTML = '<div class="empty">Failed to load orders.</div>';
+    cardWrap.innerHTML = '';
+    return;
+  }
+
   if (!orders.length) {
     wrap.innerHTML = '<div class="empty">No orders found.</div>';
     cardWrap.innerHTML = '<div class="empty">No orders found.</div>';
