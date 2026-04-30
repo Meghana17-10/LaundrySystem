@@ -136,23 +136,43 @@
     .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: #2d3748; }
     .empty { text-align: center; padding: 40px; color: #a0aec0; font-size: .95rem; }
 
+    /* ── Order cards (mobile) ── */
+    .order-card {
+      background: #fff; border-radius: 10px; padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 12px;
+    }
+    .order-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .order-card-header code { font-size: .8rem; color: #4a5568; }
+    .order-card-body { font-size: .88rem; color: #4a5568; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-bottom: 12px; }
+    .order-card-body .field-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; color: #a0aec0; }
+    .order-card-body .field-value { font-weight: 600; color: #2d3748; }
+    .order-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f4f8; padding-top: 10px; }
+    .order-card-footer .total { font-weight: 700; color: #2b6cb0; font-size: 1rem; }
+
     @media (max-width: 600px) {
       #auth-screen { padding: 16px; }
       .auth-card { padding: 28px 20px; width: 100%; }
+      input, select { font-size: 1rem; padding: 12px 14px; }
+      .btn { padding: 12px 18px; font-size: .95rem; }
+      .btn-sm { padding: 8px 14px; font-size: .85rem; }
       nav .nav-links, nav .user-info span { display: none; }
       nav .user-info button { display: none; }
       .bottom-nav { display: flex; }
-      .page { padding: 16px 12px 72px; }
+      .page { padding: 16px 12px 80px; }
       .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .stat-card { padding: 14px 16px; }
       .stat-card .value { font-size: 1.5rem; }
       .toolbar { gap: 8px; }
       .toolbar input, .toolbar select { min-width: 100%; flex: unset; }
-      .form-card { padding: 18px 14px; }
+      .form-card { padding: 18px 14px; max-width: 100%; }
       .garment-row { flex-wrap: wrap; }
       .garment-row select { flex: 1 1 100%; }
       .garment-row input  { flex: 1; }
+      .table-wrap table { display: none; }
+      .order-cards { display: block; }
+      #bill-preview { overflow-x: auto; }
     }
+    .order-cards { display: none; }
   </style>
 </head>
 <body>
@@ -234,6 +254,7 @@
       <button class="btn btn-primary btn-sm" onclick="loadOrders()">🔍 Search</button>
     </div>
     <div id="orders-table-wrap" class="table-wrap"></div>
+    <div id="orders-card-wrap" class="order-cards"></div>
   </div>
 
   <!-- Create Order -->
@@ -374,8 +395,13 @@ async function loadOrders() {
 
   const orders = await apiFetch('/api/orders?' + params.toString());
   const wrap = document.getElementById('orders-table-wrap');
+  const cardWrap = document.getElementById('orders-card-wrap');
 
-  if (!orders.length) { wrap.innerHTML = '<div class="empty">No orders found.</div>'; return; }
+  if (!orders.length) {
+    wrap.innerHTML = '<div class="empty">No orders found.</div>';
+    cardWrap.innerHTML = '<div class="empty">No orders found.</div>';
+    return;
+  }
 
   wrap.innerHTML = `
     <table>
@@ -398,6 +424,24 @@ async function loadOrders() {
           </tr>`).join('')}
       </tbody>
     </table>`;
+
+  cardWrap.innerHTML = orders.map(o => `
+    <div class="order-card">
+      <div class="order-card-header">
+        <code>${o.order_id}</code>
+        <span class="badge badge-${o.status}">${o.status}</span>
+      </div>
+      <div class="order-card-body">
+        <div><div class="field-label">Customer</div><div class="field-value">${o.customer_name}</div></div>
+        <div><div class="field-label">Phone</div><div class="field-value">${o.phone}</div></div>
+        <div><div class="field-label">Garments</div><div class="field-value">${o.garments.map(g => `${g.name} ×${g.quantity}`).join(', ')}</div></div>
+        <div><div class="field-label">Est. Delivery</div><div class="field-value">${o.estimated_delivery || '—'}</div></div>
+      </div>
+      <div class="order-card-footer">
+        <span class="total">₹${o.total_amount.toLocaleString('en-IN')}</span>
+        <button class="btn btn-primary btn-sm" onclick="openModal('${o.order_id}','${o.status}')">Update Status</button>
+      </div>
+    </div>`).join('');
 }
 
 // ── Create Order ──────────────────────────────────────
